@@ -46,15 +46,19 @@ print(head(df))
 numeric_columns <- sapply(df, is.numeric)
 #desc <- summary(df[, numeric_columns])
 desc <- summarise_all(df, list(mean = mean, sd = sd, min = min, max = max))
-print(desc)
+summary1 <- summary(df)
+
+print(summarise_all)
 
 # Identify numeric columns
 numeric_columns <- sapply(df, is.numeric)
 
 #Exclude problematic columns
 #desc <- round(summary(df[, numeric_columns, drop = FALSE]), 2)
-
+print(summary)
 print(desc)
+
+write.csv(summary1, "C:/Users/muqad./Documents/Documents/R-Statistics/report/world happiness/summary1.csv", row.names = FALSE)
 --------------------------------------------------
 #  Visualization
 --------------------------------------------------
@@ -97,6 +101,8 @@ correlation_matrix <- cor(numeric_df)
 print(correlation_matrix)
 kable(correlation_matrix)
 
+write.csv(correlation_matrix, "C:/Users/muqad./Documents/Documents/R-Statistics/report/world happiness/correlation_matrix.csv", row.names = FALSE)
+
 # Plot
 corrplot(correlation_matrix, method="color", col=colorRampPalette(c("white", "seagreen"))(200), 
          type="upper", order="hclust", 
@@ -127,18 +133,23 @@ model <- lm(y ~ ., data = X)
 summary <- summary(model)
 print(summary)
 
+
 # Extract coefficients and related information from the model summary
 coef_table <- as.data.frame(summary(model)$coefficients)
 
 # Print the table
 print(coef_table)
 
+write.csv(coef_table,"C:/Users/muqad./Documents/Documents/R-Statistics/report/world happiness/coeftable", row.names = FALSE)
 
 kable(coef_table)
 
 # Get the confidence intervals
 confidence_intervals <- confint(model)
 print(confidence_intervals)
+
+write.csv(confidence_intervals,"C:/Users/muqad./Documents/Documents/R-Statistics/report/world happiness/confidence_intervals.csv", row.names = FALSE)
+
 
 # Get the standardized residuals
 standardized_residuals <- rstandard(model)
@@ -221,9 +232,9 @@ kable(head(mtcars))
 kable(desc)
 
 
-******************************
-  
-  
+-------------------------------------------------------------------------------------------------------------
+#Q-Q Plot
+-------------------------------------------------------------------------------------------------------------
   str(df)
 library(ggplot2)
 library(ggrepel)
