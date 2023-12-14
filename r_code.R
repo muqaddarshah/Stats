@@ -2,6 +2,7 @@
 #  Importing the Packages
 --------------------------------------------------
 library("ggplot2")
+install.packages("dplyr")
 library("dplyr")
 #install.packages("tm")
 library("tm") # for text mining, similar to wordcloud
@@ -12,7 +13,7 @@ options(warn=-1) # to suppress warnings
 --------------------------------------------------
 #  Setting Work Directory and Loading the Dataset
 --------------------------------------------------
-setwd("C:/Users/Yogi/Dropbox/PC/Downloads")
+setwd("C:/Users/muqad./Documents/Documents/R-Statistics/report/world happiness")
 data <- read.csv("2019.csv", header = TRUE)
 df <- data
 head(df)
@@ -21,8 +22,8 @@ head(df)
 --------------------------------------------------
 #  Data Analysis
 --------------------------------------------------
-# print shape
-print(dim(df))
+  # print shape
+  print(dim(df))
 
 # check for nulls
 print(colSums(is.na(df)))
@@ -43,14 +44,17 @@ print(head(df))
 # desc
 # Get summary for numeric columns only
 numeric_columns <- sapply(df, is.numeric)
-desc <- summary(df[, numeric_columns])
-
-# Round the values
-desc <- round(desc, 2)
-
+#desc <- summary(df[, numeric_columns])
+desc <- summarise_all(df, list(mean = mean, sd = sd, min = min, max = max))
 print(desc)
 
+# Identify numeric columns
+numeric_columns <- sapply(df, is.numeric)
 
+#Exclude problematic columns
+#desc <- round(summary(df[, numeric_columns, drop = FALSE]), 2)
+
+print(desc)
 --------------------------------------------------
 #  Visualization
 --------------------------------------------------
@@ -102,8 +106,10 @@ corrplot(correlation_matrix, method="color", col=colorRampPalette(c("white", "se
 --------------------------------------------------
 #  MLR -- Linear Regression
 --------------------------------------------------
-#Define the independent variables (X) and the dependent variable (y)
-  X <- df[, c("GDP.per.capita", "Social.support", "Healthy.life.expectancy", "Freedom.to.make.life.choices", "Generosity", "Perceptions.of.corruption")]
+  
+  #Define the independent variables (X) and the dependent variable (y)
+  str(df)
+X <- df[, c("GDP.per.capita", "Social.support", "Healthy.life.expectancy", "Freedom.to.make.life.choices", "Generosity", "Perceptions.of.corruption")]
 y <- df[["Score"]]
 
 # Load required library
@@ -120,7 +126,15 @@ model <- lm(y ~ ., data = X)
 # Print the summary
 summary <- summary(model)
 print(summary)
-kable(summary)
+
+# Extract coefficients and related information from the model summary
+coef_table <- as.data.frame(summary(model)$coefficients)
+
+# Print the table
+print(coef_table)
+
+
+kable(coef_table)
 
 # Get the confidence intervals
 confidence_intervals <- confint(model)
@@ -205,4 +219,27 @@ library(knitr)
 kable(head(mtcars))
 
 kable(desc)
+
+
+******************************
+  
+  
+  str(df)
+library(ggplot2)
+library(ggrepel)
+
+# Create a data frame for plotting
+plot_data <- data.frame(Fitted_Values = model$fitted.values, Standardized_Residuals = standardized_residuals)
+
+# Create the QQ plot
+ggplot(plot_data, aes(sample = Fitted_Values)) +
+  stat_qq(distribution = qnorm, color = 'blue', size = 1) +
+  geom_abline(intercept = 0, slope = 1, linetype = 'dashed', color = 'red', size = 0.5) +
+  geom_text_repel(data = subset(plot_data, abs(Standardized_Residuals) >= 2), 
+                  aes(label = rownames(subset(plot_data, abs(Standardized_Residuals) >= 2)),
+                      x = Fitted_Values, y = Standardized_Residuals), 
+                  size = 3) +
+  labs(title = 'QQ Plot of Standardized Residuals') +
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5))
 
